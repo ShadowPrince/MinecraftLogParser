@@ -31,6 +31,8 @@ def in_(val, arr):
 
 def ipin(*ipss):
 	add = False
+	if not ips:
+		return false
 	for ip in ipss:
 		ip = ip.split(':')[0]
 		if ips:
@@ -92,7 +94,9 @@ if 'help' in config:
 					 chat: on player chat
 					 pm: on player pm
 					 pv_cmd: PlayerViser command logs,
-					 pv_pd: PlayerViser on drop/pickup logs
+					 pv_pd: PlayerViser on drop/pickup logs,
+					 pv_tp: PlayerViser teleport logs,
+					 pv_death: PlayerViser death logs
 	/p=PLAYER: prints logs of PLAYER
 	/i=IP: prints logs of IP (only login logs!)
 	/f=FILEPATH: opens server log on FILEPATH
@@ -103,7 +107,8 @@ if 'help' in config:
 			'pstrict': logs with ALL players defined with /p
 Arguments can be multiple!
 This help can also available with '/c=help'.
-Working with minecraft server 1.1, ChestShop, HeroChat (with rank in '[]').
+Working with minecraft server 1.1, ChestShop, HeroChat (with rank in '[]') or default MC chat (configuring in first lines of the script).
+You also can write regexp by yourself, all information at the first lines.
 Log types, what starts with 'pv_' requires plugin PlayerViser (dev.bukkit.org/server-mods/playerviser/).
 
 Example queryes:
@@ -117,6 +122,24 @@ by ShadowPrince, 2012.
 else:
 	print '=== Start parsing lines ==='
 	for line in lines:
+		if in_('pv_death', logs):
+			search = re.search(r'^(.+) \[INFO\] \[PV\] \[LOG\] Player (\S+) (death) (.+)', line)
+			if search:
+				time = search.group(1)
+				player = search.group(2)
+				tt = search.group(3)
+				info = search.group(4)
+				if pin(player):
+					result.append( '%s %s %s, at %s' % (player, tt, info, time) )
+		if in_('pv_tp', logs):
+			search = re.search(r'^(.+) \[INFO\] \[PV\] \[LOG\] Player (\S+) (teleported) (.+)', line)
+			if search:
+				time = search.group(1)
+				player = search.group(2)
+				tt = search.group(3)
+				info = search.group(4)
+				if pin(player):
+					result.append( '%s %s %s, at %s' % (player, tt, info, time) )
 		if in_('pv_pd', logs):
 			search = re.search(r'^(.+) \[INFO\] \[PV\] \[LOG\] Player (\S+) ([drop pickup]+) (.+)', line)
 			if search:
@@ -141,7 +164,7 @@ else:
 				time = search.group(1)
 				player = search.group(2)
 				ip = search.group(3)[2:-1]
-				if ipin(ip):#pin(player) or ipin(ip):
+				if pin(player) or ipin(ip):
 					result.append( '%s logged from %s, at %s' % (player, ip, time) )
 		if in_('chat', logs):
 			search = re.search(CHAT_EXP, line)
