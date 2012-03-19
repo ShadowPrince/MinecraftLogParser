@@ -1,2 +1,3 @@
 Minecraft's server.log parser.
 Help available at ./log.py without arguments.
+More features with http://dev.bukkit.org/server-mods/PlayerViser
